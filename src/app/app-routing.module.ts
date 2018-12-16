@@ -1,10 +1,13 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
+
+import { SelectivePreloadingStrategyService } from './selective-preloading-strategy.service';
 
 const routes: Routes = [
   {
     path: 'customers',
-    loadChildren: './customers/customers.module#CustomersModule'
+    loadChildren: './customers/customers.module#CustomersModule',
+    data: { preload : true }
   },
   {
     path: 'orders',
@@ -21,7 +24,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, {
       enableTracing: true, // <-- debugging purposes only
-      preloadingStrategy: PreloadAllModules
+      preloadingStrategy: SelectivePreloadingStrategyService
     }
   )],
   exports: [RouterModule]
