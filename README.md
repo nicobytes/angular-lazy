@@ -1,27 +1,144 @@
-# AngularLazy
+````
+ng generate module customers --routing
+ng generate module orders --routing
+````
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.0.1.
+````
+ng generate component customers/customer-list
+ng generate component orders/order-list
+````
 
-## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+````
+<h1>
+  {{title}}
+</h1>
 
-## Code scaffolding
+<button routerLink="/customers">Customers</button>
+<button routerLink="/orders">Orders</button>
+<button routerLink="">Home</button>
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+<router-outlet></router-outlet>
+````
 
-## Build
+```
+ng serve
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+`````
+const routes: Routes = [
+  {
+    path: 'customers',
+    loadChildren: './customers/customers.module#CustomersModule'
+  },
+  {
+    path: 'orders',
+    loadChildren: './orders/orders.module#OrdersModule'
+  },
+  {
+    path: '',
+    redirectTo: '',
+    pathMatch: 'full'
+  }
+];
+`````
 
-## Running unit tests
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+````
+<ul>
+  <li>customer 1</li>
+  <li>customer 2</li>
+  <li>customer 3</li>
+  <li>customer 5</li>
+</ul>
+````
 
-## Running end-to-end tests
+````
+import { CustomerListComponent } from './customer-list/customer-list.component';
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
-## Further help
+const routes: Routes = [
+  {
+    path: '',
+    component: CustomerListComponent
+  }
+];
+````
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+````
+<ul>
+  <li>order 1</li>
+  <li>order 2</li>
+  <li>order 3</li>
+  <li>order 5</li>
+</ul>
+````
+
+````
+import { OrderListComponent } from './order-list/order-list.component';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: OrderListComponent
+  }
+];
+````
+
+````
+@NgModule({
+  imports: [
+    RouterModule.forRoot(routes, {
+      enableTracing: true, // <-- debugging purposes only
+      preloadingStrategy: PreloadAllModules
+    })
+  ],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+
+```
+
+````
+ng generate service selective-preloading-strategy
+````
+
+````
+import { Injectable } from '@angular/core';
+import { PreloadingStrategy, Route } from '@angular/router';
+import { Observable, of } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SelectivePreloadingStrategyService implements PreloadingStrategy {
+  preloadedModules: string[] = [];
+
+  preload(route: Route, load: () => Observable<any>): Observable<any> {
+    if (route.data && route.data['preload']) {
+      // add the route path to the preloaded module array
+      this.preloadedModules.push(route.path);
+
+      // log the route path to the console
+      console.log('Preloaded: ' + route.path);
+
+      return load();
+    } else {
+      return of(null);
+    }
+  }
+}
+````
+
+
+`````
+@NgModule({
+  imports: [
+    RouterModule.forRoot(routes, {
+      enableTracing: true, // <-- debugging purposes only
+      preloadingStrategy: SelectivePreloadingStrategyService
+    })
+  ],
+  exports: [RouterModule]
+})
+````
